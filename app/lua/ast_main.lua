@@ -2,14 +2,17 @@ local lvgl = require("lvgl")
 require "ast_fs"
 require "ast_settings"
 require "ast_image"
+require "ast_vp"
 
 local globalWidth = lvgl.HOR_RES()
 local globalHeight = lvgl.VER_RES()
 
 local CHECKFILE_PATH = "/data/quickapp/files/com.astralsightstudios.astralplayer/installed"
+local PLAYFILE_PATH = "/data/quickapp/files/com.astralsightstudios.astralplayer/play"
 
 if AstSettings.LVGL_SIMULATOR_MODE then
     CHECKFILE_PATH = SCRIPT_PATH .. "data/quickapp/files/installed"
+    PLAYFILE_PATH = SCRIPT_PATH .. "data/quickapp/files/play"
 end
 
 print(CHECKFILE_PATH)
@@ -118,9 +121,11 @@ if INSTALLED then
         require("ast_scan")
     end)
 
-    createfeatureBtn(bak, "Play decoded videos   >", "#818589", 300, 50, 70 , function ()
+    createfeatureBtn(bak, "Play selected video   >", "#818589", 300, 50, 70 , function ()
         bak:delete()
-        require("ast_playscan")
+        if AstFS.fileExists(PLAYFILE_PATH) then
+            AstVP.PlayVideo(PLAYFILE_PATH)
+        end
     end)
 else
     local scanstatus = lvgl.Label(bak, {

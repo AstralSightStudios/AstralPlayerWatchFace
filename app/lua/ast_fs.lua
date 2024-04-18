@@ -29,15 +29,30 @@ function AstFS.findFile(directory, filename)
     return nil
 end
 
--- 根据文件后缀名查找指定目录下文件并返回绝对路径
+-- 根据文件后缀名递归查找指定目录下的文件并返回绝对路径
 function AstFS.findFilesByExtension(directory, extension)
-    local list = AstFS.listFiles(directory)
     local matchedFiles = {}
-    for _, file in ipairs(list) do
-        if file:match('.*%.' .. extension .. '$') then
-            table.insert(matchedFiles, directory .. "/" .. file)
+    
+    local function recursiveFind(currentDir)
+        local list = AstFS.listFiles(currentDir)
+        if not list then return end  -- 如果无法列出文件，则返回
+        
+        for _, file in ipairs(list) do
+            local fullPath = currentDir .. "/" .. file
+            if file:match('.*%.' .. extension .. '$') then
+                table.insert(matchedFiles, fullPath)
+            end
+            
+            -- 检查当前路径是否为目录
+            local subDir, msg = lvgl.fs.open_dir(fullPath)
+            if subDir then
+                subDir:close()
+                recursiveFind(fullPath)  -- 递归搜索子目录
+            end
         end
     end
+    
+    recursiveFind(directory)  -- 从初始目录开始递归搜索
     return matchedFiles
 end
 

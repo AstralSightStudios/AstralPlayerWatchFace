@@ -9,21 +9,6 @@ if AstSettings.LVGL_SIMULATOR_MODE then
     IMAGE_PATH = SCRIPT_PATH
 end
 
-local function TmpPicsClean()
-    local scan_png = AstFS.findFilesByExtension(SCRIPT_PATH , "png")
-    local scan_jpg = AstFS.findFilesByExtension(SCRIPT_PATH, "jpg")
-    if scan_png[1] ~= nil then
-        for index, value in ipairs(scan_png) do
-            AstFS.deleteFile(value)
-        end
-    end
-    if scan_jpg[1] ~= nil then
-        for index, value in ipairs(scan_jpg) do
-            AstFS.deleteFile(value)
-        end
-    end
-end
-
 AstVP = {}
 -- AstVP.PlayVideo 函数用于播放视频
 function AstVP.PlayVideo(AsPlayerDec)
@@ -73,8 +58,6 @@ function AstVP.PlayVideo(AsPlayerDec)
     else
         -- 检查图片文件是否存在
         if AstFS.fileExists(IMAGE_PATH .. DecJson["pics"] .. "1." .. DecJson["pic_format"]) then
-            TmpPicsClean()
-
             local ui_wait_timer = lvgl.Timer {
                 period = 1000,
                 cb = function(t)

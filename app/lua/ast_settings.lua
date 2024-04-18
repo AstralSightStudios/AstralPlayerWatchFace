@@ -1,3 +1,3 @@
 AstSettings = {
-    LVGL_SIMULATOR_MODE = true
+    LVGL_SIMULATOR_MODE = false
 }

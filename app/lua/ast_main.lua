@@ -122,8 +122,8 @@ if INSTALLED then
     end)
 
     createfeatureBtn(bak, "Play selected video   >", "#818589", 300, 50, 70 , function ()
-        bak:delete()
         if AstFS.fileExists(PLAYFILE_PATH) then
+            bak:delete()
             AstVP.PlayVideo(PLAYFILE_PATH)
         end
     end)

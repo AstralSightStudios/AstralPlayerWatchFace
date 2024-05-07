@@ -35,7 +35,7 @@ function AstVP.PlayVideo(AsPlayerDec)
     local DecJson = AstJson.parseJson(AstFS.readFile(AsPlayerDec))
 
     local status_text = lvgl.Label(scr, {
-        text = "preparing...",
+        text = "Preparing...",
         text_color = "#ffffff",
         text_align = lvgl.ALIGN.CENTER,
         align = {
@@ -66,13 +66,16 @@ function AstVP.PlayVideo(AsPlayerDec)
                         status_text:set({
                             text = "Finished"
                         })
+
+                        AstFS.writeToFile(IMAGE_PATH .. "playaudionow", "true")
+
                         -- 创建播放层
                         local playLayer = Image(scr, IMAGE_PATH .. DecJson["pics"] .. "1." .. DecJson["pic_format"], {0,0}, DecJson["width"], DecJson["height"], true, true)
                         -- 获取帧率和帧持续时间
                         local fps = DecJson["fps"]
                         local interval = 1 / fps
                         local frameCount = DecJson["frame"]
-                        local startTime = os.time()
+                        local startTime = os.clock()  -- 使用os.clock()保持时间函数的一致性
                         local frameIndex = 1
                         local ImagePath = DecJson["pics"]
                         local ImageFormat = DecJson["pic_format"]
@@ -81,17 +84,12 @@ function AstVP.PlayVideo(AsPlayerDec)
                         local timer = lvgl.Timer {
                             period = 1000 / fps,
                             cb = function(t)
-                                local currentTime = os.time()
-                                -- 在同步点之间无脑增加帧
-                                frameIndex = (frameIndex % frameCount) + 1
-                                if currentTime - syncTime >= interval then
-                                    -- 每个间隔同步一次帧数
-                                    local elapsedTime = currentTime - startTime
-                                    frameIndex = math.floor(elapsedTime * fps) % frameCount + 1
-                                    syncTime = currentTime -- 更新同步时间
-                                end
+                                local currentTime = os.clock()  -- 使用更高精度的时间函数
+                                local elapsedTime = currentTime - startTime
+                                frameIndex = math.floor(elapsedTime * fps) % frameCount + 1
+                                syncTime = currentTime  -- 更新同步时间
                                 -- 更新图片帧
-                                local frameName = string.format("%s%d.%s", IMAGE_PATH .. DecJson["pics"], frameIndex, ImageFormat)
+                                local frameName = string.format("%s%d.%s", IMAGE_PATH .. ImagePath, frameIndex, ImageFormat)
                                 print(frameName)
                                 playLayer.widget:set_src(frameName)
                             end
